@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Loan & EMI Calculator</title>
+    <style>
+        /* Premium Corporate Finance Theme */
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            color: #f8fafc;
+        }
+        .calculator-card {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-w: 450px;
+            box-sizing: border-box;
+            color: #334155;
+        }
+        h2 {
+            margin: 0 0 5px 0;
+            color: #0f172a;
+            font-size: 26px;
+            font-weight: 800;
+            text-align: center;
+        }
+        p.subtitle {
+            color: #64748b;
+            margin: 0 0 25px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #475569;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 2px solid #cbd5e1;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            color: #0f172a;
+        }
+        input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+        button {
+            width: 100%;
+            background: linear-gradient(to right, #059669, #10b981);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+            margin-top: 5px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+        }
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            display: none;
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #475569;
+            border-bottom: 1px dashed #e2e8f0;
+            padding-bottom: 8px;
+        }
+        .result-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .emi-score {
+            font-size: 32px;
+            font-weight: 900;
+            color: #059669;
+            text-align: center;
+            margin: 5px 0 15px 0;
+        }
+        .info-text {
+            max-width: 450px;
+            margin-top: 25px;
+            color: #94a3b8;
+            font-size: 12px;
+            text-align: justify;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-card">
+        <h2>Loan EMI Calculator</h2>
+        <p class="subtitle">Apni monthly installment aur total interest maloom karein.</p>
+
+        <div class="input-group">
+            <label>Loan Amount (Raqam)</label>
+            <input type="number" id="amount" placeholder="Eg: 500000">
+        </div>
+
+        <div class="input-group">
+            <label>Interest Rate (Sood % Saalana)</label>
+            <input type="number" id="interest" step="0.1" placeholder="Eg: 12">
+        </div>
+
+        <div class="input-group">
+            <label>Tenure (Muddat - Mahino Mein)</label>
+            <input type="number" id="tenure" placeholder="Eg: 24">
+        </div>
+
+        <button onclick="calculateEMI()">Calculate EMI</button>
+
+        <div id="result-box" class="result-box">
+            <p style="margin:0; text-align:center; color:#64748b; font-size:13px; font-weight:600;">Monthly Installment (EMI):</p>
+            <div id="emi-value" class="emi-score">00.0</div>
+            
+            <div class="result-row">
+                <span>Principal Amount:</span>
+                <span id="res-principal" style="font-weight:600; color:#1e293b;">00.0</span>
+            </div>
+            <div class="result-row">
+                <span>Total Interest Payable:</span>
+                <span id="res-interest" style="font-weight:600; color:#059669;">00.0</span>
+            </div>
+            <div class="result-row">
+                <span>Total Payment (Principal + Interest):</span>
+                <span id="res-total" style="font-weight:600; color:#1e293b;">00.0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-text">
+        <strong>What is an EMI Calculator?</strong> An Equated Monthly Interest (EMI) calculator helps you estimate your monthly loan repayment amounts. By inputting the total loan principal, annual interest rate, and the repayment period in months, you can instantly see a complete breakdown of your total interest payable and final cost.
+    </div>
+
+    <script>
+        function calculateEMI() {
+            const principal = parseFloat(document.getElementById('amount').value);
+            const rYearly = parseFloat(document.getElementById('interest').value);
+            const months = parseFloat(document.getElementById('tenure').value);
+            
+            const resultBox = document.getElementById('result-box');
+            
+            if (!principal || !rYearly || !months || principal <= 0 || rYearly <= 0 || months <= 0) {
+                alert("Sahi values enter karein!");
+                return;
+            }
+
+            // Monthly interest rate calculation
+            const rMonthly = (rYearly / 12) / 100;
+            
+            // EMI Formula: [P x R x (1+R)^N]/[((1+R)^N)-1]
+            const emi = (principal * rMonthly * Math.pow(1 + rMonthly, months)) / (Math.pow(1 + rMonthly, months) - 1);
+            
+            const totalPayment = emi * months;
+            const totalInterest = totalPayment - principal;
+
+            // Display Values
+            document.getElementById('emi-value').innerText = emi.toFixed(2);
+            document.getElementById('res-principal').innerText = principal.toFixed(2);
+            document.getElementById('res-interest').innerText = totalInterest.toFixed(2);
+            document.getElementById('res-total').innerText = totalPayment.toFixed(2);
+            
+            resultBox.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
