@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Text Utility Suite | Fast & Modern</title>
+    <style>
+        /* Premium Cyber-Dark & Slate Theme */
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            color: #f1f5f9;
+        }
+        .main-container {
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-w: 750px;
+            box-sizing: border-box;
+            color: #334155;
+        }
+        h1 {
+            margin: 0 0 8px 0;
+            color: #0f172a;
+            font-size: 28px;
+            font-weight: 800;
+            text-align: center;
+        }
+        p.subtitle {
+            color: #64748b;
+            margin: 0 0 25px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+        /* Stats Dashboard Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-num {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 2px;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        textarea {
+            width: 100%;
+            height: 220px;
+            padding: 16px;
+            border-radius: 16px;
+            border: 2px solid #cbd5e1;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            color: #0f172a;
+            resize: vertical;
+            font-family: inherit;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+        }
+        /* Button Actions Wrap */
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 12px 8px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        button:hover {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+            transform: translateY(-1px);
+        }
+        button.clear-btn {
+            background: #fef2f2;
+            color: #dc2626;
+            border-color: #fca5a5;
+        }
+        button.clear-btn:hover {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+        .info-text {
+            max-width: 750px;
+            margin-top: 30px;
+            color: #94a3b8;
+            font-size: 12px;
+            text-align: justify;
+            line-height: 1.6;
+        }
+        /* Responsive Fix */
+        @media (max-w: 600px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <h1>Text Case & Word Utility Suite</h1>
+        <p class="subtitle">Apna text paste karein, real-time counters check karein aur instantly format badlein.</p>
+
+        <!-- Live Metrics -->
+        <div class="stats-grid">
+            <div class="stat-card"><div id="cnt-words" class="stat-num">0</div><div class="stat-label">Words</div></div>
+            <div class="stat-card"><div id="cnt-chars" class="stat-num">0</div><div class="stat-label">Characters</div></div>
+            <div class="stat-card"><div id="cnt-lines" class="stat-num">0</div><div class="stat-label">Lines</div></div>
+            <div class="stat-card"><div id="cnt-spaces" class="stat-num">0</div><div class="stat-label">Spaces</div></div>
+        </div>
+
+        <!-- Main Input -->
+        <textarea id="text-input" placeholder="Yahan apna text likhein ya paste karein..." oninput="updateStats()"></textarea>
+
+        <!-- Conversion Buttons -->
+        <div class="button-group">
+            <button onclick="convertCase('upper')">UPPERCASE</button>
+            <button onclick="convertCase('lower')">lowercase</button>
+            <button onclick="convertCase('title')">Title Case</button>
+            <button onclick="convertCase('sentence')">Sentence case</button>
+            <button onclick="convertCase('capitalize')">Capitalize Words</button>
+            <button onclick="removeDuplicates()">Clear Dupes</button>
+            <button onclick="clearText()" class="clear-btn">Clear All</button>
+        </div>
+    </div>
+
+    <!-- SEO Optimized Article Content Block for AdSense Approval -->
+    <div class="info-text">
+        <strong>Why Use an Online Text Case Converter and Word Counter?</strong> In professional writing, digital marketing, and software development, text formatting accuracy is crucial. This web utility operates strictly client-side to ensure maximum data privacy. It lets you instantly fix accidental caps lock errors, analyze word density, track total character counts for social media limits, clean up duplicate text lines, and convert paragraphs into standard sentence structure without installing heavy desktop software or telemetry-driven browser extensions.
+    </div>
+
+    <script>
+        const txtArea = document.getElementById('text-input');
+
+        function updateStats() {
+            const text = txtArea.value;
+            
+            // Character count
+            document.getElementById('cnt-chars').innerText = text.length;
+            
+            // Word count logic
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            document.getElementById('cnt-words').innerText = words.length;
+            
+            // Line count logic
+            const lines = text.length === 0 ? 0 : text.split('\n').length;
+            document.getElementById('cnt-lines').innerText = lines;
+            
+            // Spaces count
+            const spaces = (text.match(/ /g) || []).length;
+            document.getElementById('cnt-spaces').innerText = spaces;
+        }
+
+        function convertCase(type) {
+            let text = txtArea.value;
+            if(!text) return;
+
+            if (type === 'upper') {
+                txtArea.value = text.toUpperCase();
+            } else if (type === 'lower') {
+                txtArea.value = text.toLowerCase();
+            } else if (type === 'title') {
+                txtArea.value = text.toLowerCase().replace(/\b\w/g, s => s.toUpperCase());
+            } else if (type === 'sentence') {
+                txtArea.value = text.toLowerCase().replace(/(^\s*|[.!?]\s+|\n\s*)(\w)/g, s => s.toUpperCase());
+            } else if (type === 'capitalize') {
+                txtArea.value = text.replace(/\b([a-z])/g, s => s.toUpperCase());
+            }
+            updateStats();
+        }
+
+        function removeDuplicates() {
+            let text = txtArea.value;
+            if(!text) return;
+            const lines = text.split('\n');
+            const uniqueLines = [...new Set(lines)];
+            txtArea.value = uniqueLines.join('\n');
+            updateStats();
+        }
+
+        function clearText() {
+            txtArea.value = '';
+            updateStats();
+        }
+    </script>
+</body>
+</html>
