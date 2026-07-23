@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaseForge — Instant Text Case Converter & Text Analytics</title>
+<meta name="description" content="CaseForge converts text between uppercase, lowercase, title case, sentence case and more, with a live dashboard for word count, character count and reading time.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f172a;
+    --bg-elevated:#141e36;
+    --bg-panel:#182342;
+    --border:#28345a;
+    --border-soft:#1f2a4a;
+    --text-primary:#e7ecf7;
+    --text-muted:#8b98bd;
+    --text-faint:#5a6690;
+    --accent:#f2b544;
+    --accent-dim:#c99530;
+    --accent-soft:rgba(242,181,68,0.10);
+    --accent-2:#5eead4;
+    --danger:#f87171;
+    --radius-lg:16px;
+    --radius-md:10px;
+    --radius-sm:6px;
+    --shadow-lift:0 12px 24px -12px rgba(0,0,0,0.55);
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{color-scheme:dark;}
+
+  body{
+    background:
+      radial-gradient(circle at 12% -10%, rgba(242,181,68,0.06), transparent 40%),
+      radial-gradient(circle at 88% 0%, rgba(94,234,212,0.05), transparent 45%),
+      var(--bg);
+    color:var(--text-primary);
+    font-family:var(--font-body);
+    line-height:1.5;
+    min-height:100vh;
+    padding:48px 20px 80px;
+  }
+
+  .wrap{
+    max-width:960px;
+    margin:0 auto;
+  }
+
+  /* ---------- Header ---------- */
+  header.brand{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:36px;
+    flex-wrap:wrap;
+  }
+
+  .brand-id{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .brand-mark{
+    width:38px;height:38px;
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);
+    font-weight:600;
+    color:var(--accent);
+    background:var(--bg-panel);
+    font-size:15px;
+  }
+
+  .brand-id h1{
+    font-family:var(--font-display);
+    font-size:20px;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+
+  .brand-id p{
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    color:var(--text-faint);
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    margin-top:2px;
+  }
+
+  .live-tag{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    border:1px solid var(--border);
+    padding:7px 12px;
+    border-radius:999px;
+    background:var(--bg-elevated);
+  }
+
+  .live-dot{
+    width:7px;height:7px;
+    border-radius:50%;
+    background:var(--accent-2);
+    box-shadow:0 0 0 0 rgba(94,234,212,0.6);
+    animation:pulse 2s infinite;
+  }
+
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(94,234,212,0.45);}
+    70%{box-shadow:0 0 0 7px rgba(94,234,212,0);}
+    100%{box-shadow:0 0 0 0 rgba(94,234,212,0);}
+  }
+
+  /* ---------- HUD Panel (signature element) ---------- */
+  .hud-panel{
+    position:relative;
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:26px;
+    box-shadow:var(--shadow-lift);
+  }
+
+  .hud-panel::before,
+  .hud-panel::after,
+  .hud-corner-tl,
+  .hud-corner-br{
+    content:"";
+    position:absolute;
+    width:18px;height:18px;
+    border-color:var(--accent-dim);
+    opacity:0.6;
+  }
+  .hud-panel::before{ /* top-left */
+    top:-1px;left:-1px;
+    border-top:2px solid var(--accent-dim);
+    border-left:2px solid var(--accent-dim);
+    border-top-left-radius:6px;
+  }
+  .hud-panel::after{ /* bottom-right */
+    bottom:-1px;right:-1px;
+    border-bottom:2px solid var(--accent-dim);
+    border-right:2px solid var(--accent-dim);
+    border-bottom-right-radius:6px;
+  }
+
+  .panel-label{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    margin-bottom:12px;
+    display:flex;
+    justify-content:space-between;
+  }
+
+  textarea#input{
+    width:100%;
+    min-height:220px;
+    resize:vertical;
+    background:var(--bg-elevated);
+    border:1px solid var(--border-soft);
+    border-radius:var(--radius-md);
+    color:var(--text-primary);
+    font-family:var(--font-body);
+    font-size:15.5px;
+    line-height:1.65;
+    padding:18px;
+    outline:none;
+    transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  textarea#input::placeholder{color:var(--text-faint);}
+
+  textarea#input:focus{
+    border-color:var(--accent-dim);
+    box-shadow:0 0 0 3px var(--accent-soft);
+  }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    margin-top:20px;
+  }
+
+  .toolbar-group-label{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    margin-bottom:10px;
+  }
+
+  .btn-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:10px;
+  }
+
+  button.tool-btn{
+    font-family:var(--font-body);
+    font-weight:500;
+    font-size:13.5px;
+    color:var(--text-primary);
+    background:var(--bg-elevated);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:12px 10px;
+    cursor:pointer;
+    transition:transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+  }
+
+  button.tool-btn:hover{
+    transform:translateY(-3px);
+    border-color:var(--accent-dim);
+    background:var(--accent-soft);
+    box-shadow:0 10px 18px -12px rgba(242,181,68,0.35);
+  }
+
+  button.tool-btn:active{
+    transform:translateY(-1px);
+  }
+
+  button.tool-btn:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+
+  .action-row{
+    display:flex;
+    gap:10px;
+    margin-top:16px;
+    flex-wrap:wrap;
+  }
+
+  button.btn-primary,
+  button.btn-ghost{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:13.5px;
+    padding:12px 20px;
+    border-radius:var(--radius-sm);
+    cursor:pointer;
+    transition:transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+    border:1px solid transparent;
+  }
+
+  button.btn-primary{
+    background:var(--accent);
+    color:#1a1204;
+  }
+  button.btn-primary:hover{
+    transform:translateY(-3px);
+    box-shadow:0 12px 20px -10px rgba(242,181,68,0.5);
+  }
+
+  button.btn-ghost{
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--text-muted);
+  }
+  button.btn-ghost:hover{
+    transform:translateY(-3px);
+    border-color:var(--danger);
+    color:var(--danger);
+  }
+
+  /* ---------- Dashboard ---------- */
+  .dashboard{
+    margin-top:28px;
+  }
+
+  .stat-grid{
+    display:grid;
+    grid-template-columns:repeat(6, 1fr);
+    gap:12px;
+  }
+
+  .stat-card{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    padding:16px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  .stat-value{
+    font-family:var(--font-mono);
+    font-size:24px;
+    font-weight:600;
+    color:var(--accent-2);
+    letter-spacing:-0.02em;
+    font-variant-numeric:tabular-nums;
+  }
+
+  .stat-label{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+  }
+
+  /* ---------- SEO Section ---------- */
+  .about{
+    margin-top:44px;
+    background:var(--bg-elevated);
+    border:1px solid var(--border-soft);
+    border-radius:var(--radius-lg);
+    padding:28px 30px;
+  }
+
+  .about h2{
+    font-family:var(--font-display);
+    font-size:17px;
+    font-weight:600;
+    margin-bottom:12px;
+    color:var(--text-primary);
+  }
+
+  .about p{
+    font-size:14.5px;
+    color:var(--text-muted);
+    line-height:1.75;
+    max-width:74ch;
+  }
+
+  footer.credit{
+    text-align:center;
+    margin-top:32px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--text-faint);
+    letter-spacing:0.04em;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:720px){
+    .btn-grid{grid-template-columns:repeat(2, 1fr);}
+    .stat-grid{grid-template-columns:repeat(3, 1fr);}
+  }
+
+  @media (max-width:460px){
+    .stat-grid{grid-template-columns:repeat(2, 1fr);}
+    .hud-panel{padding:18px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="brand">
+    <div class="brand-id">
+      <div class="brand-mark">Aa</div>
+      <div>
+        <h1>CaseForge</h1>
+        <p>Text case & analytics console</p>
+      </div>
+    </div>
+    <div class="live-tag"><span class="live-dot"></span> Live analysis</div>
+  </header>
+
+  <main class="hud-panel">
+    <div class="panel-label">
+      <span>Input buffer</span>
+      <span id="status-tag">Idle</span>
+    </div>
+
+    <textarea id="input" placeholder="Type or paste your text here. Every stat below updates as you go."></textarea>
+
+    <div class="toolbar">
+      <div class="toolbar-group-label">Convert case</div>
+      <div class="btn-grid">
+        <button class="tool-btn" data-action="upper">UPPERCASE</button>
+        <button class="tool-btn" data-action="lower">lowercase</button>
+        <button class="tool-btn" data-action="title">Title Case</button>
+        <button class="tool-btn" data-action="sentence">Sentence case</button>
+        <button class="tool-btn" data-action="alternating">aLtErNaTiNg cAsE</button>
+        <button class="tool-btn" data-action="inverse">InVERSE cASE</button>
+        <button class="tool-btn" data-action="trim">Remove extra spaces</button>
+        <button class="tool-btn" data-action="unwrap">Remove line breaks</button>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-primary" id="copy-btn">Copy text</button>
+        <button class="btn-ghost" id="clear-btn">Clear</button>
+      </div>
+    </div>
+  </main>
+
+  <section class="dashboard" aria-label="Text metrics">
+    <div class="stat-grid">
+      <div class="stat-card">
+        <span class="stat-value" id="stat-words">0</span>
+        <span class="stat-label">Words</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="stat-chars">0</span>
+        <span class="stat-label">Characters</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="stat-chars-nospace">0</span>
+        <span class="stat-label">Chars (no space)</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="stat-sentences">0</span>
+        <span class="stat-label">Sentences</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="stat-lines">0</span>
+        <span class="stat-label">Lines</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="stat-time">0s</span>
+        <span class="stat-label">Read time</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="about">
+    <h2>About this text case converter</h2>
+    <p>
+      CaseForge is a free online tool for converting text between uppercase, lowercase, title case,
+      sentence case, and playful formats like alternating and inverse case. Writers, developers, and
+      students use case converters to quickly reformat headlines, code snippets, social captions, or
+      pasted content without retyping a single word. Alongside conversion, this tool runs a live
+      analytics dashboard that tracks word count, character count, sentence count, and estimated
+      reading time as you type, making it useful for meeting content limits on platforms like Twitter,
+      meta descriptions, or academic word counts. Everything runs directly in your browser: no text is
+      uploaded or stored on any server, so your content stays private. Simply paste your text, pick a
+      case style, and copy the result instantly.
+    </p>
+  </div>
+
+  <footer class="credit">CaseForge — client-side text utility, no data leaves your browser</footer>
+</div>
+
+<script>
+(function(){
+  const input = document.getElementById('input');
+  const statusTag = document.getElementById('status-tag');
+
+  const statWords = document.getElementById('stat-words');
+  const statChars = document.getElementById('stat-chars');
+  const statCharsNoSpace = document.getElementById('stat-chars-nospace');
+  const statSentences = document.getElementById('stat-sentences');
+  const statLines = document.getElementById('stat-lines');
+  const statTime = document.getElementById('stat-time');
+
+  const WORDS_PER_MINUTE = 200;
+  let idleTimer = null;
+
+  function updateStats(){
+    const text = input.value;
+
+    const trimmed = text.trim();
+    const words = trimmed.length ? trimmed.split(/\s+/).length : 0;
+    const chars = text.length;
+    const charsNoSpace = text.replace(/\s/g, '').length;
+    const sentences = trimmed.length ? (trimmed.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || []).filter(s => s.trim().length).length : 0;
+    const lines = text.length ? text.split(/\n/).length : 0;
+
+    statWords.textContent = words;
+    statChars.textContent = chars;
+    statCharsNoSpace.textContent = charsNoSpace;
+    statSentences.textContent = sentences;
+    statLines.textContent = lines;
+
+    const minutes = words / WORDS_PER_MINUTE;
+    if (minutes < 1 && words > 0){
+      statTime.textContent = Math.max(1, Math.round(minutes * 60)) + 's';
+    } else {
+      statTime.textContent = words === 0 ? '0s' : Math.ceil(minutes) + 'm';
+    }
+
+    statusTag.textContent = text.length ? 'Typing' : 'Idle';
+    clearTimeout(idleTimer);
+    if (text.length){
+      idleTimer = setTimeout(() => { statusTag.textContent = 'Idle'; }, 1200);
+    }
+  }
+
+  function toTitleCase(str){
+    return str.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
+  }
+
+  function toSentenceCase(str){
+    const lower = str.toLowerCase();
+    return lower.replace(/(^\s*\w|[.!?]\s*\w)/g, c => c.toUpperCase());
+  }
+
+  function toAlternating(str){
+    return str.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join('');
+  }
+
+  function toInverse(str){
+    return str.split('').map(c => {
+      if (c === c.toUpperCase() && c !== c.toLowerCase()) return c.toLowerCase();
+      if (c === c.toLowerCase() && c !== c.toUpperCase()) return c.toUpperCase();
+      return c;
+    }).join('');
+  }
+
+  function removeExtraSpaces(str){
+    return str.split('\n').map(line => line.replace(/[ \t]+/g, ' ').trim()).join('\n').replace(/\n{3,}/g, '\n\n');
+  }
+
+  function removeLineBreaks(str){
+    return str.replace(/\s*\n+\s*/g, ' ').replace(/[ \t]+/g, ' ').trim();
+  }
+
+  const actions = {
+    upper: s => s.toUpperCase(),
+    lower: s => s.toLowerCase(),
+    title: toTitleCase,
+    sentence: toSentenceCase,
+    alternating: toAlternating,
+    inverse: toInverse,
+    trim: removeExtraSpaces,
+    unwrap: removeLineBreaks
+  };
+
+  document.querySelectorAll('.tool-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.getAttribute('data-action');
+      if (actions[action]){
+        input.value = actions[action](input.value);
+        updateStats();
+        input.focus();
+      }
+    });
+  });
+
+  document.getElementById('copy-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('copy-btn');
+    try{
+      await navigator.clipboard.writeText(input.value);
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = original; }, 1400);
+    }catch(err){
+      btn.textContent = 'Copy failed';
+      setTimeout(() => { btn.textContent = 'Copy text'; }, 1400);
+    }
+  });
+
+  document.getElementById('clear-btn').addEventListener('click', () => {
+    input.value = '';
+    updateStats();
+    input.focus();
+  });
+
+  input.addEventListener('input', updateStats);
+  updateStats();
+})();
+</script>
+
+</body>
+</html>
